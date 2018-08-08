@@ -23,26 +23,20 @@ class MyApp extends StatelessWidget {
         // counter didn't reset back to zero; the application is not restarted.
         primarySwatch: Colors.blue,
       ),
-      home: new MyHomePage(
-        title: 'Flutter Random Name',
+      home: Scaffold(
+        appBar: new AppBar(
+          // Here we take the value from the MyHomePage object that was created by
+          // the App.build method, and use it to set our appbar title.
+          title: new Text("Flutter Random Name"),
+        ),
+        body: new MyHomePage(),
       ),
     );
   }
 }
 
 class MyHomePage extends StatefulWidget {
-  MyHomePage({Key key, this.title}) : super(key: key);
-
-  // This widget is the home page of your application. It is stateful, meaning
-  // that it has a State object (defined below) that contains fields that affect
-  // how it looks.
-
-  // This class is the configuration for the state. It holds the values (in this
-  // case the title) provided by the parent (in this case the App widget) and
-  // used by the build method of the State. Fields in a Widget subclass are
-  // always marked "final".
-
-  final String title;
+  MyHomePage({Key key}) : super(key: key);
 
   @override
   _MyHomePageState createState() => new _MyHomePageState();
@@ -52,6 +46,7 @@ class _MyHomePageState extends State<MyHomePage> {
   String _name = "";
   bool isLoading = false;
 
+  final snack = SnackBar(content: Text("Handle error!"));
 
   void setName(String name) {
     setState(() {
@@ -65,71 +60,46 @@ class _MyHomePageState extends State<MyHomePage> {
       isLoading = true;
     });
 
-    http.Response resp = await _getNameResponse();
-    Map map = jsonDecode(resp.body);
+    try {
+      http.Response resp = await _getNameResponse();
+      Map map = jsonDecode(resp.body);
 
-    setName(map['name']);
+      setName(map['name']);
+    } catch (e) {
+      setName("Oops!");
+
+      Scaffold.of(context).showSnackBar(snack);
+    }
   }
-  
+
   _getNameResponse() => http.get(url);
 
   @override
-  Widget build(BuildContext context) {
-    // This method is rerun every time setState is called, for instance as done
-    // by the _incrementCounter method above.
-    //
-    // The Flutter framework has been optimized to make rerunning build methods
-    // fast, so that you can just rebuild anything that needs updating rather
-    // than having to individually change instances of widgets.
-    return Scaffold(
-      appBar: new AppBar(
-        // Here we take the value from the MyHomePage object that was created by
-        // the App.build method, and use it to set our appbar title.
-        title: new Text(widget.title),
-      ),
-      body: new Center(
-        // Center is a layout widget. It takes a single child and positions it
-        // in the middle of the parent.
+  Widget build(BuildContext context) => Center(
         child: new Column(
-          // Column is also layout widget. It takes a list of children and
-          // arranges them vertically. By default, it sizes itself to fit its
-          // children horizontally, and tries to be as tall as its parent.
-          //
-          // Invoke "debug paint" (press "p" in the console where you ran
-          // "flutter run", or select "Toggle Debug Paint" from the Flutter tool
-          // window in IntelliJ) to see the wireframe for each widget.
-          //
-          // Column has various properties to control how it sizes itself and
-          // how it positions its children. Here we use mainAxisAlignment to
-          // center the children vertically; the main axis here is the vertical
-          // axis because Columns are vertical (the cross axis would be
-          // horizontal).
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
             Padding(
               padding: EdgeInsets.all(16.0),
               child: Text(
                 '$_name',
-                style: Theme
-                    .of(context)
-                    .textTheme
-                    .display1,
+                style: Theme.of(context).textTheme.display1,
               ),
             ),
             _buildRaisedButton()
           ],
         ),
-      ),
-    );
-  }
+      );
 
-  RaisedButton _buildRaisedButton() {
-    return RaisedButton(
-      onPressed: isLoading ? null : () => _generateName(),
-      child: _buildButtonChild(),
-      splashColor: Colors.tealAccent,
-    );
-  }
+  RaisedButton _buildRaisedButton() => RaisedButton(
+        onPressed: isLoading
+            ? null
+            : () {
+                _generateName();
+              },
+        child: _buildButtonChild(),
+        splashColor: Colors.tealAccent,
+      );
 
   _buildButtonChild() {
     if (isLoading) {
