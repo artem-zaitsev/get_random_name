@@ -41,35 +41,14 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   String _name = "";
-  bool isLoading = false;
 
   final snack = SnackBar(content: Text("Handle error!"));
 
   void setName(String name) {
     setState(() {
       _name = name;
-      isLoading = false;
     });
   }
-
-  _generateName() async {
-    setState(() {
-      isLoading = true;
-    });
-
-    try {
-      http.Response resp = await _getNameResponse();
-      Map map = jsonDecode(resp.body);
-
-      setName(map['name']);
-    } catch (e) {
-      setName("Oops!");
-
-      Scaffold.of(context).showSnackBar(snack);
-    }
-  }
-
-  _getNameResponse() => http.get(url);
 
   @override
   Widget build(BuildContext context) => Center(
@@ -83,29 +62,15 @@ class _MyHomePageState extends State<MyHomePage> {
                 style: Theme.of(context).textTheme.display1,
               ),
             ),
-            _buildRaisedButton()
+            LoadingButton(
+              action: setName,
+              actionIfError: () {
+                setName("oops!");
+
+                Scaffold.of(context).showSnackBar(snack);
+              },
+            )
           ],
         ),
       );
-
-  RaisedButton _buildRaisedButton() => RaisedButton(
-        onPressed: isLoading
-            ? null
-            : () {
-                _generateName();
-              },
-        child: _buildButtonChild(),
-        splashColor: Colors.tealAccent,
-      );
-
-  _buildButtonChild() {
-    if (isLoading) {
-      return Transform.scale(
-        scale: 0.5,
-        child: CircularProgressIndicator(),
-      );
-    } else {
-      return Text("Click for name");
-    }
-  }
 }
