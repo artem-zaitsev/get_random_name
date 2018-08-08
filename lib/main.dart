@@ -1,8 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
-import 'dart:convert';
-
-const String url = "http://uinames.com/api/";
+import 'package:get_random_name/loading_btn.dart';
 
 void main() => runApp(new MyApp());
 
