@@ -1,0 +1,8 @@
+# get_random_name
+
+Pet Flutter app,  which get random name from web
+
+## Getting Started
+
+For help getting started with Flutter, view our online
+[documentation](https://flutter.io/).
