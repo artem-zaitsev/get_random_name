@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:get_random_name/loading_btn.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+
+const String url = "http://uinames.com/api/";
 
 void main() => runApp(new MyApp());
 
@@ -31,8 +35,34 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   String _name = "";
+  bool _isLoading = false;
 
   final snack = SnackBar(content: Text("Handle error!"));
+
+  _generateName() async {
+    toggleLoading();
+
+    try {
+      http.Response resp = await _getNameResponse();
+      Map map = jsonDecode(resp.body);
+
+      setName(map["name"]);
+      toggleLoading();
+    } catch (e) {
+      setName("oops!");
+
+      Scaffold.of(context).showSnackBar(snack);
+      toggleLoading();
+    }
+  }
+
+  void toggleLoading() {
+    setState(() {
+      _isLoading = !_isLoading;
+    });
+  }
+
+  _getNameResponse() => http.get(url);
 
   void setName(String name) {
     setState(() {
@@ -53,12 +83,8 @@ class _MyHomePageState extends State<MyHomePage> {
               ),
             ),
             LoadingButton(
-              action: setName,
-              actionIfError: () {
-                setName("oops!");
-
-                Scaffold.of(context).showSnackBar(snack);
-              },
+              isLoading: _isLoading,
+              action: _generateName,
             )
           ],
         ),
